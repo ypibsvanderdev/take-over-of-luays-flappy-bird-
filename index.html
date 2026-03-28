@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FLAPPY BIRD: EVOLUTION | Elite Arcade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0b;
+            --accent: #00ff88;
+            --neon-pink: #ff00ff;
+            --cyber-blue: #00d4ff;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: var(--bg); color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; touch-action: none;
+        }
+
+        #game-container {
+            position: relative; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        canvas {
+            background: #111;
+            box-shadow: 0 0 100px rgba(0,0,0,0.5);
+            image-rendering: pixelated;
+        }
+
+        /* --- CLINCAL UI OVERLAY --- */
+        #ui-layer {
+            position: absolute; inset: 0;
+            pointer-events: none;
+            display: flex; flex-col; align-items: center; justify-content: center;
+            z-index: 100;
+        }
+
+        .menu-card {
+            background: rgba(10, 10, 11, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 40px; border-radius: 24px;
+            text-align: center; pointer-events: auto;
+            animation: menuFadeIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes menuFadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        h1 { font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: -2px; font-size: 3rem; margin: 0; background: linear-gradient(to right, var(--accent), var(--cyber-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 10px; }
+
+        .btn-start {
+            margin-top: 30px;
+            padding: 18px 50px; border: none; border-radius: 14px;
+            background: #fff; color: #000;
+            font-weight: 900; font-family: 'Orbitron', sans-serif;
+            cursor: pointer; transition: all 0.3s; text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn-start:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 40px rgba(255,255,255,0.3); }
+
+        /* --- SKIN SELECTOR --- */
+        .skin-tray {
+            display: flex; gap: 15px; justify-content: center; margin-top: 30px;
+        }
+
+        .skin-btn {
+            width: 50px; height: 50px; border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: #1a1a1b; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .skin-btn.active { border-color: var(--accent); background: rgba(0, 255, 136, 0.1); }
+
+        #score-display {
+            position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 4rem;
+            color: #fff; text-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            opacity: 0; transition: opacity 0.5s;
+        }
+
+        /* --- AI COACH POPUP --- */
+        #ai-coach {
+            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 212, 255, 0.1); border: 1px solid var(--cyber-blue);
+            padding: 10px 20px; border-radius: 100px; color: var(--cyber-blue);
+            font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; opacity: 0; transition: 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="score-display">0</div>
+        
+        <div id="ui-layer">
+            <div id="main-menu" class="menu-card">
+                <h1>EVOLUTION</h1>
+                <p>THE NEXT GENERATION OF FLIGHT</p>
+                
+                <div class="skin-tray">
+                    <div class="skin-btn active" onclick="setSkin('classic')" title="Classic">🐦</div>
+                    <div class="skin-btn" onclick="setSkin('neon')" title="Neon">⚡</div>
+                    <div class="skin-btn" onclick="setSkin('cyber')" title="Cyber">🦾</div>
+                    <div class="skin-btn" onclick="setSkin('floaty')" title="Floaty">☁️</div>
+                </div>
+
+                <button class="btn-start" onclick="startGame()">Commence</button>
+            </div>
+        </div>
+
+        <div id="ai-coach">Analyzing Performance...</div>
+    </div>
+
+    <script src="scripts/game.js"></script>
+</body>
+</html>
