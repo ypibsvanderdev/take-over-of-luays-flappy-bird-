@@ -35,7 +35,7 @@
         #ui-layer {
             position: absolute; inset: 0;
             pointer-events: none;
-            display: flex; flex-col; align-items: center; justify-content: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 100;
         }
 
@@ -50,7 +50,17 @@
 
         @keyframes menuFadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-        h1 { font-family: 'Orbitron', sans-serif; font-weight: 900; letter-spacing: -2px; font-size: 3rem; margin: 0; background: linear-gradient(to right, var(--accent), var(--cyber-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h1 { 
+            font-family: 'Orbitron', sans-serif; 
+            font-weight: 900; 
+            letter-spacing: -2px; 
+            font-size: 3rem; 
+            margin: 0; 
+            background: linear-gradient(to right, var(--accent), var(--cyber-blue));
+            background-clip: text;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
         p { color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 10px; }
 
         .btn-start {
@@ -64,20 +74,27 @@
 
         .btn-start:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 10px 40px rgba(255,255,255,0.3); }
 
-        /* --- SKIN SELECTOR --- */
-        .skin-tray {
-            display: flex; gap: 15px; justify-content: center; margin-top: 30px;
+        .mode-tray {
+            display: flex; gap: 15px; justify-content: center; margin-top: 20px;
         }
 
-        .skin-btn {
-            width: 50px; height: 50px; border-radius: 12px;
-            border: 2px solid rgba(255,255,255,0.1);
-            background: #1a1a1b; cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
+        .mode-btn {
+            padding: 10px 25px; border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #1a1a1b; color: rgba(255,255,255,0.5);
+            cursor: pointer; transition: 0.3s; font-size: 0.7rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
         }
 
-        .skin-btn.active { border-color: var(--accent); background: rgba(0, 255, 136, 0.1); }
+        .mode-btn.active { border-color: var(--accent); background: rgba(0, 255, 136, 0.1); color: var(--accent); }
+
+        .skin-preview {
+            margin-top: 25px; font-size: 0.8rem; font-weight: 800;
+            color: rgba(255,255,255,0.4); text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #current-skin-id { color: var(--accent); font-family: 'Orbitron', sans-serif; }
 
         #score-display {
             position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
@@ -107,11 +124,13 @@
                 <h1>EVOLUTION</h1>
                 <p>THE NEXT GENERATION OF FLIGHT</p>
                 
-                <div class="skin-tray">
-                    <div class="skin-btn active" onclick="setSkin('classic')" title="Classic">🐦</div>
-                    <div class="skin-btn" onclick="setSkin('neon')" title="Neon">⚡</div>
-                    <div class="skin-btn" onclick="setSkin('cyber')" title="Cyber">🦾</div>
-                    <div class="skin-btn" onclick="setSkin('floaty')" title="Floaty">☁️</div>
+                <div class="mode-tray">
+                    <button class="mode-btn active" onclick="setMode('endless')">Endless</button>
+                    <button class="mode-btn" onclick="setMode('levels')">Levels</button>
+                </div>
+
+                <div class="skin-preview">
+                    Symmetrizing Skin <span id="current-skin-id">#000000</span>
                 </div>
 
                 <button class="btn-start" onclick="startGame()">Commence</button>

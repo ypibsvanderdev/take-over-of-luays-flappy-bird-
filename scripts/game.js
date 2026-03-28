@@ -16,25 +16,33 @@ canvas.width = WIDTH;
 canvas.height = HEIGHT;
 
 let score = 0;
+let level = 1;
+let mode = 'endless'; // endless, levels
 let isStarted = false;
 let isGameOver = false;
 let frameCount = 0;
 
-// --- SKIN SYSTEM CONFIG ---
+// --- INFINITY SKIN SYSTEM (Procedural) ---
 let currentSkin = {
-    emoji: "🐦",
-    jumpForce: -8,
-    gravity: 0.45,
-    mass: 1.2,
-    accent: "#00ff88"
+    id: 0,
+    primary: "#f7f130",   // Classic Yellow
+    secondary: "#f7b230", // Classic Orange
+    wing: "#ffffff",
+    eye: "#000000",
+    physics: { jump: -8.5, gravity: 0.48 }
 };
 
-const SKINS = {
-    classic: { emoji: "🐦", jumpForce: -8.5, gravity: 0.48, accent: "#00ff88" },
-    neon: { emoji: "⚡", jumpForce: -10, gravity: 0.6, accent: "#ff00ff" },
-    cyber: { emoji: "🦾", jumpForce: -7, gravity: 0.4, accent: "#00d4ff" },
-    floaty: { emoji: "☁️", jumpForce: -6, gravity: 0.3, accent: "#fff" }
-};
+function generateRandomSkin(seed) {
+    const r = (id) => Math.floor(Math.abs(Math.sin(seed + id) * 16777215)).toString(16).padStart(6, '0');
+    return {
+        id: seed,
+        primary: `#${r(1)}`,
+        secondary: `#${r(2)}`,
+        wing: `#${r(3)}`,
+        eye: `#000000`,
+        physics: { jump: -8.5, gravity: 0.48 }
+    };
+}
 
 // --- CORE GAME OBJECTS ---
 class Bird {
@@ -53,25 +61,22 @@ class Bird {
 
     flap() {
         if (this.dead) return;
-        this.velocity = currentSkin.jumpForce;
-        // Animation
-        this.rotation = -0.5;
+        this.velocity = currentSkin.physics.jump;
+        this.rotation = -0.4;
     }
 
     update() {
-        this.velocity += currentSkin.gravity;
+        this.velocity += currentSkin.physics.gravity;
         this.y += this.velocity;
 
-        // Rotation logic
         if (this.velocity < 0) {
-            this.rotation = Math.max(-0.6, this.rotation - 0.1);
+            this.rotation = Math.max(-0.4, this.rotation - 0.2);
         } else {
-            this.rotation = Math.min(Math.PI / 2, this.rotation + 0.05);
+            this.rotation = Math.min(Math.PI / 2, this.rotation + 0.1);
         }
 
-        // Boundary checks
         if (this.y < 0) { this.y = 0; this.velocity = 0; }
-        if (this.y + this.size > HEIGHT) { this.die(); }
+        if (this.y + 20 > HEIGHT) { this.die(); }
     }
 
     die() {
@@ -87,16 +92,38 @@ class Bird {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         
-        ctx.font = `${this.size}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(currentSkin.emoji, 0, 0);
+        // --- EVOLUTION PIXEL ART RENDERER (Procedural) ---
+        const size = 3; // Pixel size
+        const drawPixel = (px, py, color) => {
+            ctx.fillStyle = color;
+            ctx.fillRect(px * size, py * size, size, size);
+        };
+
+        // Draw Bird Body (Symmetric to Classic Flappy Bird)
+        ctx.fillStyle = "#000"; // Outline
+        ctx.fillRect(-18, -12, 36, 24);
         
-        // Trail effect (Particle logic)
-        if (frameCount % 2 === 0 && !this.dead && isStarted) {
-            particles.push(new Particle(this.x, this.y, currentSkin.accent));
-        }
+        // Fill Body
+        ctx.fillStyle = currentSkin.primary;
+        ctx.fillRect(-15, -9, 30, 18);
         
+        // Wing
+        ctx.fillStyle = currentSkin.wing;
+        ctx.fillRect(-12, 0, 15, 9);
+        ctx.strokeStyle = "#000";
+        ctx.strokeRect(-12, 0, 15, 9);
+
+        // Eye
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(6, -6, 9, 9);
+        ctx.fillStyle = currentSkin.eye;
+        ctx.fillRect(12, -3, 3, 3);
+        
+        // Beak
+        ctx.fillStyle = currentSkin.secondary;
+        ctx.fillRect(12, 3, 12, 6);
+        ctx.strokeRect(12, 3, 12, 6);
+
         ctx.restore();
     }
 }
@@ -166,6 +193,7 @@ function startGame() {
     isStarted = true;
     isGameOver = false;
     score = 0;
+    level = 1;
     bird.reset();
     pipes = [new Pipe(WIDTH + 200)];
     particles = [];
@@ -173,7 +201,7 @@ function startGame() {
     scoreDisplay.style.opacity = "1";
     mainMenu.style.display = "none";
     aiCoach.style.opacity = "0.4";
-    aiCoach.innerText = "Synchronizing Bird Nuclei...";
+    aiCoach.innerText = mode === 'levels' ? "Commencing Level 1..." : "Synchronizing Flight Kernels...";
 }
 
 function gameOver() {
@@ -182,22 +210,22 @@ function gameOver() {
     mainMenu.style.display = "block";
     const title = document.querySelector('h1');
     const subtitle = document.querySelector('#main-menu p');
-    const startBtn = document.querySelector('.btn-start');
     
     title.innerText = "EVOLUTION OVER";
-    subtitle.innerText = `REACHED LEVEL ${Math.floor(score/10)} | SCORE: ${score}`;
-    startBtn.innerText = "Evolve Again";
+    subtitle.innerText = `SKIN #${currentSkin.id} | SCORE: ${score}`;
 
-    // AI Coach Insights
-    aiCoach.style.opacity = "1";
-    if (score < 10) aiCoach.innerText = "AI Coach: Optimize your flap rhythm.";
-    else if (score < 50) aiCoach.innerText = "AI Coach: Elite precision detected.";
-    else aiCoach.innerText = "AI Coach: Neural network synchronization complete.";
+    // Unlock new random skin on death
+    const newId = Math.floor(Math.random() * 1000000);
+    currentSkin = generateRandomSkin(newId);
+    
+    // Update UI
+    const skinIdDisplay = document.getElementById('current-skin-id');
+    if (skinIdDisplay) skinIdDisplay.innerText = `#${newId.toString().padStart(6, '0')}`;
 }
 
-function setSkin(skinId) {
-    currentSkin = { ...SKINS[skinId] };
-    document.querySelectorAll('.skin-btn').forEach(btn => btn.classList.remove('active'));
+function setMode(m) {
+    mode = m;
+    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
     event.currentTarget.classList.add('active');
 }
 
